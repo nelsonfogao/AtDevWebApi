@@ -19,6 +19,7 @@ namespace ApplicationService
         public UsuarioService(WebApiContext webapicontext, IConfiguration configuration)
         {
             this.Context = webapicontext;
+            this.Configuration = configuration;
         }
 
         public String Login (String login, String password)

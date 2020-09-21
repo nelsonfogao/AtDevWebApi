@@ -35,6 +35,7 @@ namespace WebApi
 
             services.AddDbContext<WebApiContext>(options =>
                     options.UseSqlServer(Configuration.GetConnectionString("WebApiContext")));
+
             var key = Encoding.UTF8.GetBytes(this.Configuration["Token:Secret"]);
 
             services.AddAuthentication(opt =>
@@ -60,8 +61,9 @@ namespace WebApi
 
             app.UseRouting();
 
-            app.UseAuthorization();
             app.UseAuthentication();
+            app.UseAuthorization();
+
 
             app.UseEndpoints(endpoints =>
             {

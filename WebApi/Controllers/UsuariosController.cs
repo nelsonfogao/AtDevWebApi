@@ -16,6 +16,11 @@ namespace WebApi.Controllers
         {
             this.UsuarioService = usuarioService;
         }
+
+
+    [Route("Token")]
+    [HttpPost]
+    [RequireHttps]
         public IActionResult Token([FromBody]LoginRequest loginRequest)
         {
             var token = this.UsuarioService.Login(loginRequest.Login, loginRequest.Password);
