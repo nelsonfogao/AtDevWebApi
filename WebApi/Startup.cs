@@ -15,6 +15,7 @@ using Repository.Data;
 using ApplicationService;
 using System.Text;
 using Microsoft.IdentityModel.Tokens;
+using Repository;
 
 namespace WebApi
 {
@@ -32,6 +33,10 @@ namespace WebApi
         {
             services.AddControllers();
             services.AddScoped<UsuarioService>();
+            services.AddTransient<AutorServices>();
+            services.AddTransient<AutorRepository>();
+            services.AddTransient<LivroServices>();
+            services.AddTransient<LivroRepository>();
 
             services.AddDbContext<WebApiContext>(options =>
                     options.UseSqlServer(Configuration.GetConnectionString("WebApiContext")));

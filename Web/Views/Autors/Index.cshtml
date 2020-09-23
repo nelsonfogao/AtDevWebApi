@@ -1,4 +1,4 @@
-﻿@model IEnumerable<Domain.Autor>
+﻿@model IEnumerable<Web.Models.Autor.AutorViewModel>
 
 @{
     ViewData["Title"] = "Index";
@@ -43,6 +43,7 @@
                 @Html.DisplayFor(modelItem => item.DataDeNascimento)
             </td>
             <td>
+                <a asp-action="Livros" asp-route-id="@item.Id">Livros</a> |
                 <a asp-action="Edit" asp-route-id="@item.Id">Edit</a> |
                 <a asp-action="Details" asp-route-id="@item.Id">Details</a> |
                 <a asp-action="Delete" asp-route-id="@item.Id">Delete</a>

@@ -1,8 +1,10 @@
-﻿@{
-    ViewData["Title"] = "Home Page";
-}
+﻿@model WebApp.Models.PaginaInicialViewModel
+
+@{ ViewData["Title"] = "Home Page"; }
 
 <div class="text-center">
-    <h1 class="display-4">Welcome</h1>
-    <p>Learn about <a href="https://docs.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+    <h4>Quantidade de Autors: @Model.QuantidadeDeAutors</h4>
+</div>
+<div class="text-center">
+    <h4>Quantidade de Livros: @Model.QuantidadeDeLivros</h4>
 </div>

@@ -2,6 +2,8 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using ApplicationService;
+using AutoMapper;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -9,7 +11,9 @@ using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
+using Repository;
 using Repository.Data;
+using Web.ApiServices;
 
 namespace Web
 {
@@ -25,8 +29,20 @@ namespace Web
         // This method gets called by the runtime. Use this method to add services to the container.
         public void ConfigureServices(IServiceCollection services)
         {
+            services.AddScoped<ILivroApi, LivroApi>();
+            services.AddScoped<IAutorApi, AutorApi>();
+            
+            services.AddTransient<AutorServices>();
+            services.AddTransient<AutorRepository>();
+            services.AddTransient<LivroServices>();
+            services.AddTransient<LivroRepository>();
+            services.AddAutoMapper(AppDomain.CurrentDomain.GetAssemblies());
+
+
             services.AddDbContext<WebApiContext>(options =>
         options.UseSqlServer(Configuration.GetConnectionString("WebApiContext")));
+
+            services.AddSession();
             services.AddControllersWithViews();
         }
 
@@ -47,6 +63,7 @@ namespace Web
             app.UseStaticFiles();
 
             app.UseRouting();
+            app.UseSession();
 
             app.UseAuthorization();
 

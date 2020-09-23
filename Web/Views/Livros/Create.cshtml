@@ -1,4 +1,4 @@
-﻿@model Web.Models.Livro.CriaLivroViewModel;
+﻿@model Web.Models.Livro.CriaLivroViewModel
 
 @{
     ViewData["Title"] = "Create";
@@ -11,33 +11,33 @@
 <div class="row">
     <div class="col-md-4">
         <form asp-action="Create">
-            <div asp-validation-summary="ModelOnly" class="text-danger"></div>
+            @Html.AntiForgeryToken()
+            <div asp-validation-summary="ModelOnly" class="invalid"></div>
             <div class="form-group">
                 <label asp-for="Titulo" class="control-label"></label>
                 <input asp-for="Titulo" class="form-control" />
-                <span asp-validation-for="Titulo" class="text-danger"></span>
+                <span asp-validation-for="Titulo" class="invalid"></span>
             </div>
             <div class="form-group">
                 <label asp-for="ISBN" class="control-label"></label>
                 <input asp-for="ISBN" class="form-control" />
-                <span asp-validation-for="ISBN" class="text-danger"></span>
+                <span asp-validation-for="ISBN" class="invalid"></span>
             </div>
             <div class="form-group">
                 <label asp-for="Ano" class="control-label"></label>
                 <input asp-for="Ano" class="form-control" />
-                <span asp-validation-for="Ano" class="text-danger"></span>
+                <span asp-validation-for="Ano" class="invalid"></span>
             </div>
             <div class="form-group">
-                <label asp-for="AutorId" class="control-label">Autors</label>
-                <select name="AutorId" class="form-control" id="AutorId">
-                    <option>-</option>
+                <label for="AutorId" class="control-label">Autor</label>
+                <select name="AutorId" class="form-control" id="AutorId" multiple>
+                    <option value="0">-</option>
                     @foreach (var autor in Model.Autors)
                     {
-                        <option value="@autor.Id">@autor.Nome</option>
+                        <option value="@autor.Id">@autor.Nome @autor.Sobrenome</option>
                     }
-
                 </select>
-                <span asp-validation-for="Autors" class="text-danger"></span>
+                <span validation-for="AutorId" class="invalid"></span>
             </div>
             <div class="form-group">
                 <input type="submit" value="Create" class="btn btn-primary" />

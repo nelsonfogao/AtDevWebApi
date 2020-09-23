@@ -120,7 +120,16 @@ namespace WebApi.Controllers
             }
             return NoContent();
         }
+        [HttpGet("{id}/livros")]
+        public async Task<ActionResult> GetLivros(int id)
+        {
+            var pessoa = await _context.Autores.Include(x => x.Livros).FirstOrDefaultAsync(x => x.Id == id);
 
+            if (pessoa == null)
+                return NotFound();
+
+            return Ok(pessoa);
+        }
         private bool AutorExists(int id)
         {
             return _context.Autores.Any(e => e.Id == id);

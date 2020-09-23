@@ -9,61 +9,105 @@ using Domain;
 using Repository.Data;
 using Web.Models.Livro;
 using Web.Models.Autor;
+using Web.ApiServices;
+using Microsoft.AspNetCore.Http;
+using RestSharp;
+using Newtonsoft.Json;
+using ApplicationService;
+using AutoMapper;
 
 namespace Web.Controllers
 {
     public class LivrosController : Controller
     {
+        private readonly ILivroApi livroApi;
+        private readonly IAutorApi autorApi;
+        private readonly LivroServices LivroServices;
+        private readonly AutorServices AutorServices;
+        private readonly IMapper mapper;
         private readonly WebApiContext _context;
 
-        public LivrosController(WebApiContext context)
+
+        public LivrosController(ILivroApi livroApi, IAutorApi autorApi, LivroServices livroServices, AutorServices autorServices, IMapper mapper, WebApiContext context)
         {
-            _context = context;
+            this.livroApi = livroApi;
+            this.autorApi = autorApi;
+            this.LivroServices = livroServices;
+            this.AutorServices = autorServices;
+            this.mapper = mapper;
+            this._context = context;
         }
 
         // GET: Livros
-        public async Task<IActionResult> Index()
+        public ActionResult Index()
         {
-            return View(await _context.Livros.ToListAsync());
+            var client = new RestClient();
+
+            var requestToken = new RestRequest("https://localhost:5001/api/usuarios/token");
+
+            requestToken.AddJsonBody(JsonConvert.SerializeObject(new
+            {
+                Login = "Nelson",
+                Password = "abc123"
+            }));
+
+
+            var result = client.Post<TokenResult>(requestToken).Data;
+
+            this.HttpContext.Session.SetString("Token", result.Token);
+
+            var request = new RestRequest("https://localhost:5001/api/livros", DataFormat.Json);
+            request.AddHeader("Authorization", "Bearer " + this.HttpContext.Session.GetString("Token"));
+
+            var response = client.Get<List<LivroViewModel>>(request);
+
+            return View(response.Data);
         }
 
         // GET: Livros/Details/5
-        public async Task<IActionResult> Details(int? id)
+        public ActionResult Details(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            var client = new RestClient();
+            var request = new RestRequest("https://localhost:5001/api/livros/" + id, DataFormat.Json);
+            request.AddHeader("Authorization", "Bearer " + this.HttpContext.Session.GetString("Token"));
 
-            var livro = await _context.Livros
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (livro == null)
-            {
-                return NotFound();
-            }
+            var response = client.Get<LivroViewModel>(request);
 
+            var livro = response.Data;
+            var idAutor = livro.AutorId;
+            var autor = AutorServices.GetAutorById(idAutor);
+            livro.Autor = mapper.Map<AutorViewModel>(autor);
             return View(livro);
+
         }
 
         // GET: Livros/Create
-        public IActionResult Create()
+        public ActionResult Create()
         {
             var viewModel = new CriaLivroViewModel();
-            viewModel.Autors = new List<AutorViewModel>()
-            {
-                new AutorViewModel() {Id = 1, Nome = "Nome1" },
-                new AutorViewModel() {Id = 2, Nome = "Nome2" },
-            };
+
+
+            var client = new RestClient();
+
+            var request = new RestRequest("https://localhost:5001/api/autors", DataFormat.Json);
+            request.AddHeader("Authorization", "Bearer " + this.HttpContext.Session.GetString("Token"));
+
+            var response = client.Get<List<AutorViewModel>>(request);
+
+            var list = response.Data;
+            viewModel.Autors = mapper.Map<List<AutorViewModel>>(list);
 
             return View(viewModel);
         }
+
+        // POST: PessoaController/Create
 
         // POST: Livros/Create
         // To protect from overposting attacks, enable the specific properties you want to bind to, for 
         // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Create([Bind("Id,Titulo,ISBN,Ano")] Livro livro)
+        public async Task<IActionResult> Create([Bind("Id,Titulo,ISBN,Ano,AutorId")] Livro livro)
         {
             if (ModelState.IsValid)
             {
@@ -73,29 +117,19 @@ namespace Web.Controllers
             }
             return View(livro);
         }
-
-        // GET: Livros/Edit/5
-        public async Task<IActionResult> Edit(int? id)
+        public ActionResult Edit(int id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            var client = new RestClient();
+            var request = new RestRequest("https://localhost:5001/api/livros/" + id, DataFormat.Json);
+            request.AddHeader("Authorization", "Bearer " + this.HttpContext.Session.GetString("Token"));
 
-            var livro = await _context.Livros.FindAsync(id);
-            if (livro == null)
-            {
-                return NotFound();
-            }
-            return View(livro);
+            var response1 = client.Get<LivroViewModel>(request);
+
+            return View(response1.Data);
         }
-
-        // POST: Livros/Edit/5
-        // To protect from overposting attacks, enable the specific properties you want to bind to, for 
-        // more details, see http://go.microsoft.com/fwlink/?LinkId=317598.
         [HttpPost]
         [ValidateAntiForgeryToken]
-        public async Task<IActionResult> Edit(int id, [Bind("Id,Titulo,ISBN,Ano")] Livro livro)
+        public async Task<IActionResult> Edit(int id, [Bind("Id,Titulo,ISBN,Ano,AutorId")] Livro livro)
         {
             if (id != livro.Id)
             {
@@ -124,26 +158,17 @@ namespace Web.Controllers
             }
             return View(livro);
         }
-
-        // GET: Livros/Delete/5
-        public async Task<IActionResult> Delete(int? id)
+        public ActionResult Delete(int? id)
         {
-            if (id == null)
-            {
-                return NotFound();
-            }
+            var client = new RestClient();
+            var request = new RestRequest("https://localhost:5001/api/livros/" + id, DataFormat.Json);
+            request.AddHeader("Authorization", "Bearer " + this.HttpContext.Session.GetString("Token"));
 
-            var livro = await _context.Livros
-                .FirstOrDefaultAsync(m => m.Id == id);
-            if (livro == null)
-            {
-                return NotFound();
-            }
+            var response1 = client.Get<LivroViewModel>(request);
 
-            return View(livro);
+            return View(response1.Data);
         }
 
-        // POST: Livros/Delete/5
         [HttpPost, ActionName("Delete")]
         [ValidateAntiForgeryToken]
         public async Task<IActionResult> DeleteConfirmed(int id)
@@ -153,10 +178,12 @@ namespace Web.Controllers
             await _context.SaveChangesAsync();
             return RedirectToAction(nameof(Index));
         }
-
         private bool LivroExists(int id)
         {
             return _context.Livros.Any(e => e.Id == id);
         }
+
+
     }
+
 }
